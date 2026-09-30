@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemUpdateDto {
-    String name;
-    String description;
-    Boolean available;
+
+    @Size(min = 1)
+    private String name;
+
+    @Size(min = 1)
+    private String description;
+
+    private Boolean available;
 }
