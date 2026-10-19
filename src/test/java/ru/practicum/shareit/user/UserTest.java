@@ -168,7 +168,7 @@ public class UserTest {
                 .build();
         userService.saveUser(user2);
 
-        assertThrows(NotFoundException.class, () -> userService.deleteUser(100500));
+        assertThrows(NotFoundException.class, () -> userService.deleteUser(100500L));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class UserTest {
                 .build();
         userService.saveUser(user2);
 
-        assertThrows(BadRequestException.class, () -> userService.deleteUser(0));
+        assertThrows(BadRequestException.class, () -> userService.deleteUser(0L));
     }
 
     @Test

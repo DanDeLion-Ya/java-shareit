@@ -19,78 +19,70 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
 
     @Override
-    public Item saveItem(long userId, Item item) {
+    public Item saveItem(Long userId, Item item) {
         log.info("Запрос на добавление нового предмета");
-        User owner = userRepository.findById(userId);
-        if (owner == null) {
-            log.warn("Пользователя не существует");
-            throw new NotFoundException("Пользователь не найден");
-        }
-        log.info("Добавление пользователем с Id {}, нового предмета с Id: {}", userId, item.getId());
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
         item.setOwner(owner);
-        return itemRepository.add(item);
+        Item savedItem = itemRepository.save(item);
+        log.info("Добавление пользователем с Id {}, нового предмета с Id: {}", userId, savedItem.getId());
+        return savedItem;
     }
 
     @Override
-    public Item findById(long itemId) {
+    public Item findById(Long itemId) {
         log.info("Запрос на поиск предмета c Id = {}", itemId);
-        Item item = itemRepository.findById(itemId);
-        if (item == null) {
-            log.warn("Предмет c Id = {} не найден", itemId);
-            throw new NotFoundException("Предмет с Id = " + itemId + " не найден");
-        }
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Предмет с Id = " + itemId + " не найден"));
         log.info("Предмет c Id = {} найден", itemId);
         return item;
     }
 
     @Override
-    public Item updateItem(long userId, long itemId, ItemUpdateDto updateDto) {
+    public Item updateItem(Long userId, Long itemId, ItemUpdateDto updateDto) {
         log.info("Запрос на обновление данных о предмете c Id = {}", itemId);
-        Item updatedItem = itemRepository.findById(itemId);
-        User owner = userRepository.findById(userId);
-        if (owner == null) {
-            log.warn("Пользователь(владелец предмета) c Id = {} не найден", userId);
-            throw new NotFoundException("Владелец предмета с Id = " + userId + " не найден");
+        Item updatedItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Предмет с Id = " + itemId + " не найден."));
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Пользователь с Id = " + userId + " не найден.");
         }
-        if (updatedItem == null) {
-            log.warn("Предмет c Id = {} не найден", itemId);
-            throw new NotFoundException("Предмет с Id = " + itemId + " не найден.");
-        }
-        if (updatedItem.getOwner().getId() != userId) {
-            log.warn("Пользователь не является владельцем предмета");
-            throw new NotFoundException("Пользователь не является владельцем предмета");
+        if (!updatedItem.getOwner().getId().equals(userId)) {
+            log.warn("Пользователь c Id = {} не является владельцем предмета", userId);
+            throw new NotFoundException("Пользователь c Id = " + userId + " не является владельцем предмета");
         }
         if (updateDto.getName() != null) {
-            log.info("Название предмета обновлено");
+            log.info("Название предмета с Id = {} обновлено", itemId);
             updatedItem.setName(updateDto.getName());
         }
         if (updateDto.getDescription() != null) {
-            log.info("Описание предмета обновлено");
+            log.info("Описание предмета с Id = {} обновлено", itemId);
             updatedItem.setDescription(updateDto.getDescription());
         }
         if (updateDto.getAvailable() != null) {
-            log.info("Информация о доступности предмета обновлена");
+            log.info("Информация о доступности предмета с Id = {} обновлена", itemId);
             updatedItem.setAvailable(updateDto.getAvailable());
         }
-        itemRepository.update(updatedItem);
+        itemRepository.save(updatedItem);
         return updatedItem;
     }
 
     @Override
     public List<Item> searchItems(String text) {
         log.info("Запрос на поиск предмета по тексту: {}", text);
+        if (text == null || text.isBlank()) {
+            return List.of();
+        }
         return itemRepository.search(text);
     }
 
     @Override
-    public List<Item> findItemsByOwnerId(long userId) {
+    public List<Item> findItemsByOwnerId(Long userId) {
         log.info("Запрос на список предметов пользователя c Id = {}", userId);
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            log.warn("Пользователь c Id = {} не найден", userId);
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь с Id = " + userId + " не найден");
         }
         log.info("Получен список предметов пользователя с Id: {}", userId);
-        return itemRepository.findItemsByOwnerId(userId);
+        return itemRepository.findByOwnerId(userId);
     }
 }

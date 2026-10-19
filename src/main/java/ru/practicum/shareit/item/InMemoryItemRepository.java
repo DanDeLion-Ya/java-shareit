@@ -22,7 +22,7 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     @Override
-    public Item findById(long itemId) {
+    public Item findById(Long itemId) {
         return items.get(itemId);
     }
 
@@ -59,7 +59,7 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     @Override
-    public List<Item> findItemsByOwnerId(long ownerId) {
+    public List<Item> findItemsByOwnerId(Long ownerId) {
         List<Item> itemList = new ArrayList<>();
         for (Item item : items.values()) {
             if (item.getOwner().getId() == ownerId) {
