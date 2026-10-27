@@ -56,11 +56,11 @@ public class ItemServiceImpl implements ItemService {
         if (item.getOwner().getId().equals(userId)) {
             LocalDateTime now = LocalDateTime.now();
 
-            bookingRepository.findLastBooking(itemId, Status.APPROVED, now)
+            bookingRepository.findTopByItemIdAndStatusAndEndBeforeOrderByEndDesc(itemId, Status.APPROVED, now)
                     .ifPresent(b -> itemDto.setLastBooking(new BookingMiniDto(b.getId(),
                             b.getBooker().getId())));
 
-            bookingRepository.findNextBooking(itemId, Status.APPROVED, now)
+            bookingRepository.findTopByItemIdAndStatusAndStartAfterOrderByStartAsc(itemId, Status.APPROVED, now)
                     .ifPresent(b -> itemDto.setNextBooking(new BookingMiniDto(b.getId(),
                             b.getBooker().getId())));
         }
@@ -127,14 +127,19 @@ public class ItemServiceImpl implements ItemService {
                     dto.setDescription(item.getDescription());
                     dto.setAvailable(item.isAvailable());
 
-                    bookingRepository.findLastBooking(item.getId(), Status.APPROVED, now)
-                            .ifPresent(b -> dto.setLastBooking(new BookingMiniDto(b.getId(), b.getBooker().getId())));
+                    bookingRepository.findTopByItemIdAndStatusAndEndBeforeOrderByEndDesc(item.getId(),
+                                    Status.APPROVED, now)
+                            .ifPresent(b -> dto.setLastBooking(new BookingMiniDto(b.getId(),
+                                    b.getBooker().getId())));
 
-                    bookingRepository.findNextBooking(item.getId(), Status.APPROVED, now)
-                            .ifPresent(b -> dto.setNextBooking(new BookingMiniDto(b.getId(), b.getBooker().getId())));
+                    bookingRepository.findTopByItemIdAndStatusAndStartAfterOrderByStartAsc(item.getId(),
+                                    Status.APPROVED, now)
+                            .ifPresent(b -> dto.setNextBooking(new BookingMiniDto(b.getId(),
+                                    b.getBooker().getId())));
 
                     List<CommentDto> comments = commentRepository.findByItem_Id(item.getId()).stream()
-                            .map(c -> new CommentDto(c.getId(), c.getText(), c.getAuthor().getName(), c.getCreated()))
+                            .map(c -> new CommentDto(c.getId(), c.getText(),
+                                    c.getAuthor().getName(), c.getCreated()))
                             .toList();
                     dto.setComments(comments);
 

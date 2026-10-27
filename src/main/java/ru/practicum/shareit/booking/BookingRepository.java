@@ -38,15 +38,17 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "AND b.end > ?2")
     List<Booking> findCurrentBookingsByOwner(Long ownerId, LocalDateTime now, Sort sort);
 
-    @Query("SELECT b FROM Booking AS b " +
-            "WHERE b.item.id = ?1 AND b.status = ?2 AND b.start > ?3 " +
-            "ORDER BY b.start ASC")
-    Optional<Booking> findNextBooking(Long itemId, Status status, LocalDateTime now);
+//    @Query("SELECT b FROM Booking AS b " +
+//            "WHERE b.item.id = ?1 AND b.status = ?2 AND b.start > ?3 " +
+//            "ORDER BY b.start ASC")
+    Optional<Booking> findTopByItemIdAndStatusAndStartAfterOrderByStartAsc(Long itemId, Status status,
+                                                                           LocalDateTime now);
 
-    @Query("SELECT b FROM Booking AS b " +
-            "WHERE b.item.id = ?1 AND b.status = ?2 AND b.end < ?3 " +
-            "ORDER BY b.end DESC")
-    Optional<Booking> findLastBooking(Long itemId, Status status, LocalDateTime now);
+//    @Query("SELECT b FROM Booking AS b " +
+//            "WHERE b.item.id = ?1 AND b.status = ?2 AND b.end < ?3 " +
+//            "ORDER BY b.end DESC")
+    Optional<Booking> findTopByItemIdAndStatusAndEndBeforeOrderByEndDesc(Long itemId, Status status,
+                                                                         LocalDateTime now);
 
     @Query("SELECT b FROM Booking AS b " +
             "WHERE b.item.id = ?1 AND b.booker.id = ?2 AND b.end < ?3")
