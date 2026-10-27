@@ -36,7 +36,6 @@ public class ErrorHandler {
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex) {
-        log.warn("Forbidden: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse("FORBIDDEN", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
